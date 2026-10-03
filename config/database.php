@@ -13,6 +13,10 @@ if ($conn->connect_error) {
     die("Falha na conexão com o banco de dados: " . $conn->connect_error);
 }
 
+$conn->query("SET SESSION sql_mode = 
+    REPLACE(@@sql_mode, 'ONLY_FULL_GROUP_BY', '')");
+
+$conn->set_charset('utf8mb4');
 // Define o charset para UTF-8 (evita problemas com acentos)
 $conn->set_charset("utf8");
 

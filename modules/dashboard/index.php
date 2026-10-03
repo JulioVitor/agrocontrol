@@ -47,7 +47,7 @@ while ($row = $result->fetch_assoc()) {
 $sql = "SELECT s.nome, s.cor, COUNT(b.id) as total 
         FROM situacoes s
         LEFT JOIN bovinos b ON s.id = b.id_situacao AND " . TenantManager::addTenantFilter('b')
-        . " WHERE s.id_fazenda = $farmId
+    . " WHERE s.id_fazenda = $farmId
         GROUP BY s.id
         ORDER BY s.ordem";
 $result = executeQuery($sql);
@@ -144,19 +144,19 @@ include '../../includes/sidebar.php';
             </div>
         </div>
     </div>
-    
+
     <!-- Informação da fazenda ativa (card resumido) -->
     <?php if ($activeFarm): ?>
-    <div class="alert alert-info alert-dismissible fade show mb-4" role="alert">
-        <i class="bi bi-info-circle me-2"></i>
-        <strong>Fazenda ativa:</strong> <?php echo $activeFarm['nome_fazenda']; ?>
-        <?php if ($activeFarm['cidade']): ?>
-            - <?php echo $activeFarm['cidade']; ?>/<?php echo $activeFarm['estado']; ?>
-        <?php endif; ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+        <div class="alert alert-info alert-dismissible fade show mb-4" role="alert">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Fazenda ativa:</strong> <?php echo $activeFarm['nome_fazenda']; ?>
+            <?php if ($activeFarm['cidade']): ?>
+                - <?php echo $activeFarm['cidade']; ?>/<?php echo $activeFarm['estado']; ?>
+            <?php endif; ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
     <?php endif; ?>
-    
+
     <!-- Cards de estatísticas -->
     <div class="row g-3 mb-4">
         <div class="col-sm-6 col-md-3">
@@ -182,7 +182,26 @@ include '../../includes/sidebar.php';
                 </div>
             </div>
         </div>
-        
+
+        <!-- 🤖 Agente de IA -->
+        <link rel="stylesheet" href="<?= BASE_URL ?>agente/css/agente.css">
+
+        <div id="agente-widget">
+            <div id="agente-chat"></div>
+            <form id="agente-form">
+                <input id="agente-input"
+                    placeholder="Pergunte algo… ex: produção de leite da semana"
+                    autocomplete="off">
+                <button type="submit">Enviar</button>
+            </form>
+        </div>
+
+        <script>
+            window.AGENTE_BASE_URL = "<?= BASE_URL ?>";
+            window.AGENTE_FAZENDA_ID = <?= (int)($_SESSION['fazenda_id'] ?? 0) ?>;
+        </script>
+        <script src="<?= BASE_URL ?>agente/js/agente.js?v=<?= time() ?>"></script>
+
         <div class="col-sm-6 col-md-3">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
@@ -206,7 +225,7 @@ include '../../includes/sidebar.php';
                 </div>
             </div>
         </div>
-        
+
         <div class="col-sm-6 col-md-3">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
@@ -225,7 +244,7 @@ include '../../includes/sidebar.php';
                 </div>
             </div>
         </div>
-        
+
         <div class="col-sm-6 col-md-3">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body">
@@ -245,7 +264,7 @@ include '../../includes/sidebar.php';
             </div>
         </div>
     </div>
-    
+
     <!-- Gráficos e informações detalhadas -->
     <div class="row g-3 mb-4">
         <!-- Gráfico de Situação dos Animais -->
@@ -260,7 +279,7 @@ include '../../includes/sidebar.php';
                 </div>
             </div>
         </div>
-        
+
         <!-- Últimos eventos -->
         <div class="col-md-6">
             <div class="card shadow-sm">
@@ -275,36 +294,36 @@ include '../../includes/sidebar.php';
                 </div>
                 <div class="card-body p-0">
                     <?php if ($proximosEventos && $proximosEventos->num_rows > 0): ?>
-                    <div class="list-group list-group-flush">
-                        <?php while ($evento = $proximosEventos->fetch_assoc()): ?>
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong><?php echo $evento['titulo']; ?></strong>
-                                    <br>
-                                    <small class="text-muted">
-                                        <i class="bi bi-clock me-1"></i>
-                                        <?php echo date('d/m/Y H:i', strtotime($evento['data_inicio'])); ?>
-                                    </small>
+                        <div class="list-group list-group-flush">
+                            <?php while ($evento = $proximosEventos->fetch_assoc()): ?>
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong><?php echo $evento['titulo']; ?></strong>
+                                            <br>
+                                            <small class="text-muted">
+                                                <i class="bi bi-clock me-1"></i>
+                                                <?php echo date('d/m/Y H:i', strtotime($evento['data_inicio'])); ?>
+                                            </small>
+                                        </div>
+                                        <span class="badge bg-<?php echo $evento['cor'] ?? 'secondary'; ?>">
+                                            <?php echo $evento['tipo']; ?>
+                                        </span>
+                                    </div>
                                 </div>
-                                <span class="badge bg-<?php echo $evento['cor'] ?? 'secondary'; ?>">
-                                    <?php echo $evento['tipo']; ?>
-                                </span>
-                            </div>
+                            <?php endwhile; ?>
                         </div>
-                        <?php endwhile; ?>
-                    </div>
                     <?php else: ?>
-                    <div class="text-center py-4 text-muted">
-                        <i class="bi bi-calendar-x display-6"></i>
-                        <p class="mt-2">Nenhum evento programado</p>
-                    </div>
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-calendar-x display-6"></i>
+                            <p class="mt-2">Nenhum evento programado</p>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <div class="row g-3">
         <!-- Últimos animais cadastrados -->
         <div class="col-md-6">
@@ -320,49 +339,49 @@ include '../../includes/sidebar.php';
                 </div>
                 <div class="card-body p-0">
                     <?php if ($recentBovinos && $recentBovinos->num_rows > 0): ?>
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Brinco</th>
-                                    <th>Nome</th>
-                                    <th>Raça</th>
-                                    <th>Situação</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($bovino = $recentBovinos->fetch_assoc()): ?>
-                                <tr>
-                                    <td>
-                                        <a href="<?php echo BASE_URL; ?>modules/bovinos/visualizar.php?id=<?php echo $bovino['id']; ?>">
-                                            <?php echo $bovino['brinco']; ?>
-                                        </a>
-                                    </td>
-                                    <td><?php echo $bovino['nome'] ?: '-'; ?></td>
-                                    <td><?php echo $bovino['nome_raca'] ?: '-'; ?></td>
-                                    <td>
-                                        <span class="badge bg-<?php echo $bovino['cor'] ?? 'secondary'; ?>">
-                                            <?php echo $bovino['situacao_nome']; ?>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Brinco</th>
+                                        <th>Nome</th>
+                                        <th>Raça</th>
+                                        <th>Situação</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php while ($bovino = $recentBovinos->fetch_assoc()): ?>
+                                        <tr>
+                                            <td>
+                                                <a href="<?php echo BASE_URL; ?>modules/bovinos/visualizar.php?id=<?php echo $bovino['id']; ?>">
+                                                    <?php echo $bovino['brinco']; ?>
+                                                </a>
+                                            </td>
+                                            <td><?php echo $bovino['nome'] ?: '-'; ?></td>
+                                            <td><?php echo $bovino['nome_raca'] ?: '-'; ?></td>
+                                            <td>
+                                                <span class="badge bg-<?php echo $bovino['cor'] ?? 'secondary'; ?>">
+                                                    <?php echo $bovino['situacao_nome']; ?>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     <?php else: ?>
-                    <div class="text-center py-4 text-muted">
-                        <i class="bi bi-tree display-6"></i>
-                        <p class="mt-2">Nenhum animal cadastrado</p>
-                        <a href="<?php echo BASE_URL; ?>modules/bovinos/cadastrar.php" class="btn btn-success btn-sm">
-                            <i class="bi bi-plus-circle"></i> Cadastrar primeiro animal
-                        </a>
-                    </div>
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-tree display-6"></i>
+                            <p class="mt-2">Nenhum animal cadastrado</p>
+                            <a href="<?php echo BASE_URL; ?>modules/bovinos/cadastrar.php" class="btn btn-success btn-sm">
+                                <i class="bi bi-plus-circle"></i> Cadastrar primeiro animal
+                            </a>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
-        
+
         <!-- Vacinas a vencer -->
         <div class="col-md-6">
             <div class="card shadow-sm">
@@ -377,45 +396,45 @@ include '../../includes/sidebar.php';
                 </div>
                 <div class="card-body p-0">
                     <?php if ($vacinasProximas && $vacinasProximas->num_rows > 0): ?>
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Animal</th>
-                                    <th>Vacina</th>
-                                    <th>Próxima dose</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php while ($vacina = $vacinasProximas->fetch_assoc()): 
-                                    $diasRestantes = (strtotime($vacina['proxima_dose']) - time()) / 86400;
-                                    $statusClass = $diasRestantes <= 3 ? 'danger' : ($diasRestantes <= 7 ? 'warning' : 'info');
-                                ?>
-                                <tr>
-                                    <td>
-                                        <?php echo $vacina['brinco']; ?>
-                                        <?php if ($vacina['nome_bovino']): ?>
-                                            <br><small><?php echo $vacina['nome_bovino']; ?></small>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?php echo $vacina['nome_vacina']; ?></td>
-                                    <td><?php echo date('d/m/Y', strtotime($vacina['proxima_dose'])); ?></td>
-                                    <td>
-                                        <span class="badge bg-<?php echo $statusClass; ?>">
-                                            <?php echo round($diasRestantes); ?> dias
-                                        </span>
-                                    </td>
-                                </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Animal</th>
+                                        <th>Vacina</th>
+                                        <th>Próxima dose</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php while ($vacina = $vacinasProximas->fetch_assoc()):
+                                        $diasRestantes = (strtotime($vacina['proxima_dose']) - time()) / 86400;
+                                        $statusClass = $diasRestantes <= 3 ? 'danger' : ($diasRestantes <= 7 ? 'warning' : 'info');
+                                    ?>
+                                        <tr>
+                                            <td>
+                                                <?php echo $vacina['brinco']; ?>
+                                                <?php if ($vacina['nome_bovino']): ?>
+                                                    <br><small><?php echo $vacina['nome_bovino']; ?></small>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td><?php echo $vacina['nome_vacina']; ?></td>
+                                            <td><?php echo date('d/m/Y', strtotime($vacina['proxima_dose'])); ?></td>
+                                            <td>
+                                                <span class="badge bg-<?php echo $statusClass; ?>">
+                                                    <?php echo round($diasRestantes); ?> dias
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     <?php else: ?>
-                    <div class="text-center py-4 text-muted">
-                        <i class="bi bi-shield-check display-6"></i>
-                        <p class="mt-2">Nenhuma vacina a vencer</p>
-                    </div>
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-shield-check display-6"></i>
+                            <p class="mt-2">Nenhuma vacina a vencer</p>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>
@@ -424,42 +443,42 @@ include '../../includes/sidebar.php';
 </main>
 
 <script>
-// Gráfico de Situação
-document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('graficoSituacao').getContext('2d');
-    
-    // Dados do PHP
-    const situacoes = <?php echo json_encode($stats['situacoes']); ?>;
-    
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: situacoes.map(s => s.nome),
-            datasets: [{
-                data: situacoes.map(s => s.total),
-                backgroundColor: [
-                    '#28a745', // success
-                    '#ffc107', // warning
-                    '#dc3545', // danger
-                    '#6c757d', // secondary
-                    '#17a2b8', // info
-                    '#007bff', // primary
-                    '#6610f2'  // indigo
-                ],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom'
+    // Gráfico de Situação
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('graficoSituacao').getContext('2d');
+
+        // Dados do PHP
+        const situacoes = <?php echo json_encode($stats['situacoes']); ?>;
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: situacoes.map(s => s.nome),
+                datasets: [{
+                    data: situacoes.map(s => s.total),
+                    backgroundColor: [
+                        '#28a745', // success
+                        '#ffc107', // warning
+                        '#dc3545', // danger
+                        '#6c757d', // secondary
+                        '#17a2b8', // info
+                        '#007bff', // primary
+                        '#6610f2' // indigo
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
                 }
             }
-        }
+        });
     });
-});
 </script>
 
 <?php
